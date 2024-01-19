@@ -1,58 +1,106 @@
 import React, { useState } from "react";
 import questions from "../questions";
 import Result from "./Result";
-// import "../styles/QuestionBox.css";
+import "../components/style.css";
+import moonImage from "../assets/dark-mode.png";
 import lightSun from "../assets/mode.png";
+import logoImage from "../assets/quiz.png";
 
 const QuestionBox = () => {
-  
   const [darkMode, setDarkMode] = useState(false);
-  const [currentQuestion ] = useState(0) 
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState(
+    Array(questions.length).fill(null)
+  );
   const [isHighlighted, setIsHighlighted] = useState(false);
-  const [showResult] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
- 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
   };
- 
+
+  const handleOptionSelect = (optionId) => {
+    if (selectedOptions[currentQuestion] === null) {
+      const updatedSelectedOptions = [...selectedOptions];
+      updatedSelectedOptions[currentQuestion] = optionId;
+      setSelectedOptions(updatedSelectedOptions);
+
+      if (currentQuestion < questions.length - 1) {
+        setCurrentQuestion(currentQuestion + 1);
+      } else {
+        setShowResult(true);
+      }
+    }
+  };
+
+  const resetQuiz = () => {
+  };
+
+  const getQuestionStyle = () => {
+    return isHighlighted
+      ? {
+          color: "red",
+          fontWeight: "700",
+        }
+      : {};
+  };
+
   function calculateScore() {
   
   }
 
+  function isOptionCorrect(question, selectedOption) {
+ 
+  }
 
   return (
-    <div className={`main ${darkMode ? "dark" : "light"}`}>
-      <div className="top">
-        
-        <h1 >
-          React Quiz
+    <div className={`quiz-container ${darkMode ? "dark-mode" : "light-mode"}`}>
+      <div className="quiz-header">
+      <img src={logoImage} alt="Logo" className="logo-image" />
+        <h1 className="quiz-title">
+          Silicon Trivia
         </h1>
-        
-        <button onClick={toggleTheme} className="theme-btn">
-          { <img src={lightSun} />  }
+        <button onClick={toggleTheme} className="theme-button">
+          {darkMode ? (
+            <img src={lightSun} style={{ width: "60px", height: "60px" }} alt="light-mode" />
+          ) : (
+            <img src={moonImage} style={{ width: "60px", height: "60px" }} alt="dark-mode" />
+          )}
         </button>
       </div>
-      <div className="container">
+      <div className="quiz-main-container">
         {!showResult ? (
-          
           <div>
-            <div className="question-number">Question: {currentQuestion + 1} of {questions.length}</div>
-            <div  className="question">
-             
+            <div className="quiz-question-number">
+              Question: {currentQuestion + 1} of {questions.length}
+            </div>
+            <div style={getQuestionStyle()} className="quiz-question-text">
               {questions[currentQuestion].text}
             </div>
-           
-            
-            <div className="button-container">
+            <ul className="quiz-options-list">
+              {questions[currentQuestion].options.map((option) => (
+                <li
+                  key={option.id}
+                  onClick={() => handleOptionSelect(option.id)}
+                  className={`quiz-option ${
+                    selectedOptions[currentQuestion] === option.id
+                      ? "selected"
+                      : ""
+                  } option-${option.id}`}
+                >
+                  {option.text}
+                </li>
+              ))}
+            </ul>
+            <div className="quiz-button-container">
               <button
-                className={`highlight-button`}
+                className={`quiz-button`}
                 onClick={() => setIsHighlighted(true)}
               >
                 Highlight
               </button>
               <button
-                className={`remove-highlight-button`}
+                className={`quiz-button`}
                 onClick={() => setIsHighlighted(false)}
               >
                 Remove Highlight
@@ -60,13 +108,12 @@ const QuestionBox = () => {
             </div>
           </div>
         ) : (
-         
-          <Result score={calculateScore()}  />
+          <Result score={calculateScore()} resetQuiz={resetQuiz} />
         )}
       </div>
     </div>
   );
 };
 
-
 export default QuestionBox;
+
