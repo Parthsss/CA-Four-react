@@ -34,6 +34,9 @@ const QuestionBox = () => {
   };
 
   const resetQuiz = () => {
+    setCurrentQuestion(0);
+    setSelectedOptions(Array(questions.length).fill(null));
+    setShowResult(false);
   };
 
   const getQuestionStyle = () => {
@@ -46,25 +49,46 @@ const QuestionBox = () => {
   };
 
   function calculateScore() {
-  
+    const correctCount = selectedOptions.reduce(
+      (count, selectedOption, index) => {
+        const question = questions[index];
+        return (
+          count +
+          (selectedOption !== null && isOptionCorrect(question, selectedOption)
+            ? 1
+            : 0)
+        );
+      },
+      0
+    );
+     return Math.round((correctCount / questions.length) * 100);
   }
 
   function isOptionCorrect(question, selectedOption) {
- 
+    return (
+      question.options.find((option) => option.id === selectedOption)
+        ?.isCorrect || false
+    );
   }
 
   return (
     <div className={`quiz-container ${darkMode ? "dark-mode" : "light-mode"}`}>
       <div className="quiz-header">
-      <img src={logoImage} alt="Logo" className="logo-image" />
-        <h1 className="quiz-title">
-          Silicon Trivia
-        </h1>
+        <img src={logoImage} alt="Logo" className="logo-image" />
+        <h1 className="quiz-title">Silicon Trivia</h1>
         <button onClick={toggleTheme} className="theme-button">
           {darkMode ? (
-            <img src={lightSun} style={{ width: "60px", height: "60px" }} alt="light-mode" />
+            <img
+              src={lightSun}
+              style={{ width: "60px", height: "60px" }}
+              alt="light-mode"
+            />
           ) : (
-            <img src={moonImage} style={{ width: "60px", height: "60px" }} alt="dark-mode" />
+            <img
+              src={moonImage}
+              style={{ width: "60px", height: "60px" }}
+              alt="dark-mode"
+            />
           )}
         </button>
       </div>
@@ -108,7 +132,17 @@ const QuestionBox = () => {
             </div>
           </div>
         ) : (
-          <Result score={calculateScore()} resetQuiz={resetQuiz} />
+          <Result
+            score={calculateScore()}
+            correctCount={
+              selectedOptions.filter(
+                (option, index) =>
+                  option !== null && isOptionCorrect(questions[index], option)
+              ).length
+            }
+            totalQuestions={questions.length}
+            resetQuiz={resetQuiz}
+          />
         )}
       </div>
     </div>
@@ -116,4 +150,3 @@ const QuestionBox = () => {
 };
 
 export default QuestionBox;
-
